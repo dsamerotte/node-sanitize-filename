@@ -36,20 +36,16 @@ const windowsReservedRe = /^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i;
 const windowsTrailingRe = /[. ]+$/;
 
 function sanitize(input, replacement) {
-  const sanitized = input
+  return input
     .replace(illegalRe, replacement)
     .replace(controlRe, replacement)
     .replace(reservedRe, replacement)
     .replace(windowsReservedRe, replacement)
     .replace(windowsTrailingRe, replacement);
-  return truncate(sanitized, 255);
 }
 
 module.exports = (input, options) => {
-  const replacement = (options && options.replacement) || '';
-  const output = sanitize(input, replacement);
-  if (replacement === '') {
-    return output;
-  }
-  return sanitize(output, '');
+  const replacement = (options && options.replacement && sanitize(options.replacement, '')) || '';
+  const truncationLength = (options && options.truncationLength) || 255;
+  return truncate(sanitize(input, replacement), truncationLength);
 };
